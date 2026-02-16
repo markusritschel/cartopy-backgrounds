@@ -205,14 +205,14 @@ def example_5_resolution_comparison(output_path: Path) -> None:
             )
             continue
 
-        # Zoom into a specific region to see detail differences
-        ax.set_extent([-10, 30, 35, 60], crs=ccrs.PlateCarree())
+        # Zoom into Greek islands (Aegean Sea) to see detail differences clearly
+        ax.set_extent([20, 28, 34, 41], crs=ccrs.PlateCarree())
         ax.coastlines(linewidth=0.5, color="white")
 
         ax.set_title(f"{res_name.capitalize()} ({res_size})", fontsize=11)
 
     plt.suptitle(
-        "Resolution Comparison - Mediterranean Region", fontsize=14, y=0.98
+        "Resolution Comparison - Greek Islands (Aegean Sea)", fontsize=14, y=0.98
     )
 
     plt.savefig(output_path, dpi=150, bbox_inches="tight")

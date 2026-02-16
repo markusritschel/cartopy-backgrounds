@@ -24,6 +24,13 @@ dev = [
     "ruff>=0.2.0",
     "mypy>=1.8.0",
 ]
+examples = [
+    "cartopy>=0.22.0",
+    "matplotlib>=3.8.0",
+    "scipy>=1.11.0",
+    "jupyter>=1.0.0",
+    "ipywidgets>=8.1.0",
+]
 
 [project.scripts]
 cartopy-bg = "cartopy_backgrounds.cli:app"

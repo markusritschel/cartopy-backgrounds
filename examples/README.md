@@ -56,34 +56,42 @@ This generates example maps in `examples/output/`.
 
 ## Installation Options
 
-### Quick Run (No Installation)
+### Option A: Using the examples group (Recommended)
 
-Use `uv run --with` to run code without installing packages:
+Install all example dependencies at once:
 
 ```bash
-# Run a Python script with dependencies
-uv run --with cartopy --with matplotlib python your_script.py
+# Install with uv
+uv sync --extra examples
 
-# Run a Jupyter notebook
-uv run --with jupyter --with cartopy --with matplotlib jupyter notebook
-
-# Run with ipywidgets for interactive notebooks
-uv run --with jupyter --with cartopy --with matplotlib --with ipywidgets jupyter notebook
+# Then run without --with flags
+just example-notebook
+just example-lab
+just example-images
 ```
 
-### Permanent Installation
+### Option B: Quick Run (No Installation)
 
-If you prefer to install Cartopy and Matplotlib globally:
+Use `uv run --extra examples` to run without permanent installation:
+
+```bash
+# Run the notebook
+uv run --extra examples jupyter notebook
+
+# Run the Python script
+uv run --extra examples python examples/cartopy_usage_example.py
+```
+
+### Option C: Manual Installation
+
+If you prefer to install globally:
 
 ```bash
 # With pip
-pip install cartopy matplotlib
-
-# With uv
-uv pip install cartopy matplotlib
+pip install cartopy matplotlib scipy jupyter ipywidgets
 
 # With conda (recommended for cartopy due to complex dependencies)
-conda install -c conda-forge cartopy matplotlib
+conda install -c conda-forge cartopy matplotlib scipy jupyter ipywidgets
 ```
 
 ## Example Usage in Your Code
