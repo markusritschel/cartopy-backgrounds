@@ -18,19 +18,20 @@ class BlueMarbleDataset(Dataset):
 
     # Hardcoded dataset IDs for 2004 Blue Marble imagery
     # These IDs are stable and used to construct download URLs
+    # Verified by scraping from NASA NEO website
     DATASET_IDS = {
-        Month.JANUARY: "526302",
-        Month.FEBRUARY: "526303",
-        Month.MARCH: "526304",
-        Month.APRIL: "526305",
-        Month.MAY: "526306",
-        Month.JUNE: "526307",
-        Month.JULY: "526308",
-        Month.AUGUST: "526309",
-        Month.SEPTEMBER: "526310",
-        Month.OCTOBER: "526311",
-        Month.NOVEMBER: "526312",
-        Month.DECEMBER: "526308",  # Uses July dataset
+        Month.JANUARY: "526293",
+        Month.FEBRUARY: "526297",
+        Month.MARCH: "526303",
+        Month.APRIL: "526310",
+        Month.MAY: "526301",
+        Month.JUNE: "526299",
+        Month.JULY: "526302",
+        Month.AUGUST: "526300",
+        Month.SEPTEMBER: "526313",
+        Month.OCTOBER: "526314",
+        Month.NOVEMBER: "526292",
+        Month.DECEMBER: "526308",
     }
 
     @property
