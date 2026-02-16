@@ -153,17 +153,17 @@ dev:
 # Run Jupyter notebook with Cartopy examples
 example-notebook:
     @echo "Starting Jupyter notebook with Cartopy examples..."
-    uv run --with jupyter --with cartopy --with matplotlib --with ipywidgets \
+    uv run --with jupyter --with cartopy --with matplotlib --with scipy --with ipywidgets \
         jupyter notebook examples/cartopy_usage_examples.ipynb
 
 # Run JupyterLab with Cartopy examples
 example-lab:
     @echo "Starting JupyterLab with Cartopy examples..."
-    uv run --with jupyterlab --with cartopy --with matplotlib --with ipywidgets \
+    uv run --with jupyterlab --with cartopy --with matplotlib --with scipy --with ipywidgets \
         jupyter lab
 
 # Generate example images using Python script
 example-images:
     @echo "Generating example images..."
-    uv run --with cartopy --with matplotlib python examples/cartopy_usage_example.py
+    uv run --with cartopy --with matplotlib --with scipy python examples/cartopy_usage_example.py
     @echo "✓ Examples generated in examples/output/"

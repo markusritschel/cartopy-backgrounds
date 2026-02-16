@@ -20,14 +20,16 @@ Interactive notebook with 5+ examples:
 
 3. **Run the notebook with uv (no installation needed):**
    ```bash
-   uv run --with jupyter --with cartopy --with matplotlib \
+   uv run --with jupyter --with cartopy --with matplotlib --with scipy \
      jupyter notebook examples/cartopy_usage_examples.ipynb
    ```
 
    Or with JupyterLab:
    ```bash
-   uv run --with jupyterlab --with cartopy --with matplotlib jupyter lab
+   uv run --with jupyterlab --with cartopy --with matplotlib --with scipy jupyter lab
    ```
+
+   **Note:** `scipy` is needed for projection transforms (Orthographic, Mollweide, etc.)
 
 The notebook includes:
 - Basic global map with BlueMarble background
