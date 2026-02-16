@@ -1,6 +1,7 @@
 """Command-line interface for cartopy-backgrounds (MVC View layer)."""
 
 import asyncio
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -13,6 +14,7 @@ from .controller import DownloadController
 from .datasets.registry import DatasetRegistry
 from .generator import JSONGenerator
 from .models.common import Month, Resolution
+from .utils.parser import parse_month_specs
 
 app = typer.Typer(
     name="cartopy-bg",
@@ -36,8 +38,9 @@ def version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
     version: Optional[bool] = typer.Option(
         None,
         "--version",
@@ -48,7 +51,10 @@ def main(
     ),
 ) -> None:
     """Cartopy Backgrounds - Download NASA satellite imagery for Cartopy."""
-    pass
+    # Show help if no command provided
+    if ctx.invoked_subcommand is None:
+        console.print(ctx.get_help())
+        raise typer.Exit(0)
 
 
 @app.command()
@@ -69,7 +75,7 @@ def download(
         None,
         "--month",
         "-m",
-        help="Specific months to download (Jan, Feb, ..., or 1-12). Default: all",
+        help="Months: singles (1, Jan), ranges (1-3, Jan-Mar), comma-separated (1,5,8), mixed (1-3,5,7-9). Default: all",
     ),
     profile: Optional[str] = typer.Option(
         None,
@@ -114,8 +120,11 @@ def download(
       # Download multiple datasets
       cartopy-bg download -d bluemarble -d bluemarble-tb --profile prod
 
-      # Download specific months and resolutions
-      cartopy-bg download -r low -r high -m Jan -m Jul
+      # Download specific months (various formats)
+      cartopy-bg download -m Jan -m Jul           # Individual months
+      cartopy-bg download -m 1-3                  # Range: January through March
+      cartopy-bg download -m 1,5,8                # Comma-separated: Jan, May, Aug
+      cartopy-bg download -m 1-3,5,7-9            # Mixed: Jan-Mar, May, Jul-Sep
     """
     # Resolve datasets
     if "all" in datasets:
@@ -148,18 +157,11 @@ def download(
 
     # Resolve months
     if months:
-        month_objs = []
-        for m in months:
-            try:
-                # Try as number first (1-12)
-                if m.isdigit():
-                    month_objs.append(Month.from_number(int(m)))
-                else:
-                    # Try as abbreviation (Jan, Feb, etc.)
-                    month_objs.append(Month.from_abbr(m))
-            except ValueError as e:
-                console.print(f"[red]Error:[/red] {e}")
-                raise typer.Exit(1)
+        try:
+            month_objs = parse_month_specs(months)
+        except ValueError as e:
+            console.print(f"[red]Error:[/red] {e}")
+            raise typer.Exit(1)
     else:
         # Default to all months
         month_objs = list(Month)
