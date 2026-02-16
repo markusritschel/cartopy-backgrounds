@@ -81,7 +81,7 @@ verify-ids:
 
 # Clean downloaded data files
 clean-data:
-    rm -rf data/bluemarble data/bluemarble-tb
+    rm -rf data/*
     rm -f images.json
     @echo "✓ Cleaned downloaded data"
 
