@@ -14,7 +14,7 @@ from .controller import DownloadController
 from .datasets.registry import DatasetRegistry
 from .generator import JSONGenerator
 from .models.common import Month, Resolution
-from .utils.parser import parse_month_specs
+from .utils.parser import parse_dataset_specs, parse_month_specs, parse_resolution_specs
 
 app = typer.Typer(
     name="cartopy-bg",
@@ -63,13 +63,13 @@ def download(
         ["bluemarble"],
         "--dataset",
         "-d",
-        help="Dataset(s) to download. Use 'all' for all available datasets.",
+        help="Dataset(s): single (bluemarble), comma-separated (bluemarble,bluemarble-tb), or 'all'.",
     ),
     resolutions: Optional[List[str]] = typer.Option(
         None,
         "--resolution",
         "-r",
-        help="Resolution(s) to download (low, mid, high, ultrahigh)",
+        help="Resolution(s): single (low), comma-separated (low,mid,high).",
     ),
     months: Optional[List[str]] = typer.Option(
         None,
@@ -121,18 +121,20 @@ def download(
       cartopy-bg download -d bluemarble -d bluemarble-tb --profile prod
 
       # Download specific months (various formats)
-      cartopy-bg download -m Jan -m Jul           # Individual months
       cartopy-bg download -m 1-3                  # Range: January through March
       cartopy-bg download -m 1,5,8                # Comma-separated: Jan, May, Aug
       cartopy-bg download -m 1-3,5,7-9            # Mixed: Jan-Mar, May, Jul-Sep
-    """
-    # Resolve datasets
-    if "all" in datasets:
-        dataset_names = DatasetRegistry.get_names()
-    else:
-        dataset_names = datasets
 
-    # Resolve resolutions
+      # Comma-separated datasets and resolutions
+      cartopy-bg download -d bluemarble,bluemarble-tb -r low,mid
+      cartopy-bg download -d all -r low,mid,high
+    """
+    # Resolve datasets (support comma-separated)
+    dataset_names = parse_dataset_specs(datasets)
+    if "all" in dataset_names:
+        dataset_names = DatasetRegistry.get_names()
+
+    # Resolve resolutions (support comma-separated)
     if profile:
         if profile not in PROFILES:
             console.print(f"[red]Error:[/red] Unknown profile '{profile}'")
@@ -140,17 +142,11 @@ def download(
             raise typer.Exit(1)
         resolution_objs = PROFILES[profile]
     elif resolutions:
-        # Convert string resolutions to enum
-        resolution_objs = []
-        for res in resolutions:
-            try:
-                resolution_objs.append(Resolution[res.upper()])
-            except KeyError:
-                console.print(f"[red]Error:[/red] Unknown resolution '{res}'")
-                console.print(
-                    f"Available: {', '.join([r.name.lower() for r in Resolution])}"
-                )
-                raise typer.Exit(1)
+        try:
+            resolution_objs = parse_resolution_specs(resolutions)
+        except ValueError as e:
+            console.print(f"[red]Error:[/red] {e}")
+            raise typer.Exit(1)
     else:
         # Default to dev profile
         resolution_objs = PROFILES["dev"]

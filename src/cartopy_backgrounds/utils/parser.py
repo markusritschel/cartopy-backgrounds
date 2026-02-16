@@ -1,9 +1,11 @@
 """Parsing utilities for CLI arguments."""
 
 import re
-from typing import List
+from typing import List, TypeVar
 
-from ..models.common import Month
+from ..models.common import Month, Resolution
+
+T = TypeVar('T')
 
 
 def parse_month_spec(spec: str) -> List[Month]:
@@ -115,3 +117,126 @@ def parse_month_specs(specs: List[str]) -> List[Month]:
             unique_months.append(month)
 
     return unique_months
+
+
+def parse_comma_separated(spec: str) -> List[str]:
+    """Parse comma-separated values.
+
+    Args:
+        spec: Comma-separated specification string
+
+    Returns:
+        List of individual values (stripped)
+
+    Examples:
+        >>> parse_comma_separated("low,mid,high")
+        ["low", "mid", "high"]
+        >>> parse_comma_separated("a, b , c")
+        ["a", "b", "c"]
+    """
+    return [item.strip() for item in spec.split(",") if item.strip()]
+
+
+def parse_resolution_spec(spec: str) -> List[Resolution]:
+    """Parse resolution specification supporting comma-separated values.
+
+    Supports:
+    - Single values: "low", "mid", "high"
+    - Comma-separated: "low,mid", "low,mid,high"
+
+    Args:
+        spec: Resolution specification string
+
+    Returns:
+        List of Resolution enums
+
+    Raises:
+        ValueError: If specification is invalid
+
+    Examples:
+        >>> parse_resolution_spec("low,mid")
+        [Resolution.LOW, Resolution.MID]
+        >>> parse_resolution_spec("low,mid,high")
+        [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+    """
+    resolutions = []
+    parts = parse_comma_separated(spec)
+
+    for part in parts:
+        try:
+            resolutions.append(Resolution[part.upper()])
+        except KeyError:
+            available = ", ".join([r.name.lower() for r in Resolution])
+            raise ValueError(
+                f"Unknown resolution '{part}'. Available: {available}"
+            )
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_resolutions = []
+    for res in resolutions:
+        if res not in seen:
+            seen.add(res)
+            unique_resolutions.append(res)
+
+    return unique_resolutions
+
+
+def parse_resolution_specs(specs: List[str]) -> List[Resolution]:
+    """Parse multiple resolution specifications.
+
+    Args:
+        specs: List of resolution specification strings
+
+    Returns:
+        List of Resolution enums (deduplicated)
+
+    Examples:
+        >>> parse_resolution_specs(["low", "mid,high"])
+        [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+    """
+    all_resolutions = []
+    for spec in specs:
+        all_resolutions.extend(parse_resolution_spec(spec))
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_resolutions = []
+    for res in all_resolutions:
+        if res not in seen:
+            seen.add(res)
+            unique_resolutions.append(res)
+
+    return unique_resolutions
+
+
+def parse_dataset_specs(specs: List[str]) -> List[str]:
+    """Parse dataset specifications supporting comma-separated values.
+
+    Supports:
+    - Single values: "bluemarble"
+    - Comma-separated: "bluemarble,bluemarble-tb"
+
+    Args:
+        specs: List of dataset specification strings
+
+    Returns:
+        List of dataset names (deduplicated)
+
+    Examples:
+        >>> parse_dataset_specs(["bluemarble,bluemarble-tb"])
+        ["bluemarble", "bluemarble-tb"]
+    """
+    all_datasets = []
+    for spec in specs:
+        all_datasets.extend(parse_comma_separated(spec))
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_datasets = []
+    for dataset in all_datasets:
+        if dataset not in seen:
+            seen.add(dataset)
+            unique_datasets.append(dataset)
+
+    return unique_datasets
