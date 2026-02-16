@@ -18,12 +18,12 @@ Usage:
        python examples/cartopy_usage_example.py
 """
 
+import os
 import sys
 from pathlib import Path
 
 try:
     import cartopy.crs as ccrs
-    import cartopy.mpl.geoaxes as geoaxes
     import matplotlib.pyplot as plt
 except ImportError:
     print("Error: cartopy and matplotlib are required to run this example.")
@@ -31,27 +31,27 @@ except ImportError:
     sys.exit(1)
 
 
-def verify_images_json(images_json_path: Path) -> bool:
-    """Verify that images.json exists and is valid.
+def setup_cartopy_backgrounds(images_json_path: Path) -> bool:
+    """Setup Cartopy to use custom background images from images.json.
 
     Args:
-        images_json_path: Path to images.json
+        images_json_path: Path to images.json file
 
     Returns:
-        True if valid, False otherwise
+        True if successful, False otherwise
     """
     if not images_json_path.exists():
         print(f"Error: {images_json_path} not found.")
         print("Run 'cartopy-bg generate' first to create it.")
         return False
 
-    try:
-        # Try to load it with Cartopy
-        geoaxes.read_user_background_images(str(images_json_path))
-        return True
-    except Exception as e:
-        print(f"Error loading {images_json_path}: {e}")
-        return False
+    # Set CARTOPY_USER_BACKGROUNDS to the directory containing images.json
+    # Cartopy will automatically load images.json from this directory
+    os.environ['CARTOPY_USER_BACKGROUNDS'] = str(images_json_path.parent)
+
+    print(f"✓ Set CARTOPY_USER_BACKGROUNDS to: {images_json_path.parent}")
+    print(f"✓ Cartopy will load backgrounds from: {images_json_path}")
+    return True
 
 
 def example_1_basic_map(output_path: Path) -> None:
@@ -232,11 +232,10 @@ def main():
     print("=" * 60)
     print()
 
-    # Verify images.json exists and is valid
-    if not verify_images_json(images_json):
+    # Setup Cartopy to use custom backgrounds
+    if not setup_cartopy_backgrounds(images_json):
         sys.exit(1)
 
-    print(f"✓ Found and validated {images_json}")
     print()
 
     # Create output directory
