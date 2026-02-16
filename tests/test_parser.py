@@ -2,8 +2,15 @@
 
 import pytest
 
-from cartopy_backgrounds.models.common import Month
-from cartopy_backgrounds.utils.parser import parse_month_spec, parse_month_specs
+from cartopy_backgrounds.models.common import Month, Resolution
+from cartopy_backgrounds.utils.parser import (
+    parse_comma_separated,
+    parse_dataset_specs,
+    parse_month_spec,
+    parse_month_specs,
+    parse_resolution_spec,
+    parse_resolution_specs,
+)
 
 
 class TestParseMonthSpec:
@@ -142,3 +149,138 @@ class TestParseMonthSpecs:
             Month.JANUARY, Month.FEBRUARY, Month.MARCH,
             Month.MAY, Month.JULY
         ]
+
+
+class TestParseCommaSeparated:
+    """Tests for parse_comma_separated function."""
+
+    def test_single_value(self):
+        """Test parsing single value."""
+        result = parse_comma_separated("low")
+        assert result == ["low"]
+
+    def test_comma_separated(self):
+        """Test parsing comma-separated values."""
+        result = parse_comma_separated("low,mid,high")
+        assert result == ["low", "mid", "high"]
+
+    def test_whitespace_handling(self):
+        """Test that whitespace is stripped."""
+        result = parse_comma_separated(" low , mid , high ")
+        assert result == ["low", "mid", "high"]
+
+    def test_empty_values_ignored(self):
+        """Test that empty values are ignored."""
+        result = parse_comma_separated("low,,mid,,high")
+        assert result == ["low", "mid", "high"]
+
+    def test_empty_string(self):
+        """Test parsing empty string."""
+        result = parse_comma_separated("")
+        assert result == []
+
+
+class TestParseResolutionSpec:
+    """Tests for parse_resolution_spec function."""
+
+    def test_single_resolution(self):
+        """Test parsing single resolution."""
+        result = parse_resolution_spec("low")
+        assert result == [Resolution.LOW]
+
+        result = parse_resolution_spec("high")
+        assert result == [Resolution.HIGH]
+
+    def test_comma_separated(self):
+        """Test parsing comma-separated resolutions."""
+        result = parse_resolution_spec("low,mid")
+        assert result == [Resolution.LOW, Resolution.MID]
+
+        result = parse_resolution_spec("low,mid,high")
+        assert result == [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+
+    def test_case_insensitive(self):
+        """Test that resolution parsing is case-insensitive."""
+        result = parse_resolution_spec("LOW,Mid,HiGh")
+        assert result == [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+
+    def test_whitespace_handling(self):
+        """Test that whitespace is handled correctly."""
+        result = parse_resolution_spec(" low , mid , high ")
+        assert result == [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+
+    def test_deduplication(self):
+        """Test that duplicate resolutions are removed."""
+        result = parse_resolution_spec("low,mid,low,high,mid")
+        assert result == [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+
+    def test_invalid_resolution(self):
+        """Test that invalid resolutions raise ValueError."""
+        with pytest.raises(ValueError, match="Unknown resolution 'invalid'"):
+            parse_resolution_spec("invalid")
+
+        with pytest.raises(ValueError, match="Available: low, mid, high"):
+            parse_resolution_spec("low,invalid,high")
+
+
+class TestParseResolutionSpecs:
+    """Tests for parse_resolution_specs function."""
+
+    def test_multiple_specs(self):
+        """Test parsing multiple resolution specifications."""
+        result = parse_resolution_specs(["low", "mid,high"])
+        assert result == [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+
+    def test_overlapping_specs(self):
+        """Test that overlapping specs are deduplicated."""
+        result = parse_resolution_specs(["low,mid", "mid,high"])
+        assert result == [Resolution.LOW, Resolution.MID, Resolution.HIGH]
+
+    def test_single_spec(self):
+        """Test parsing single specification."""
+        result = parse_resolution_specs(["low,mid,high"])
+        assert len(result) == 3
+
+    def test_empty_specs(self):
+        """Test parsing empty list."""
+        result = parse_resolution_specs([])
+        assert result == []
+
+
+class TestParseDatasetSpecs:
+    """Tests for parse_dataset_specs function."""
+
+    def test_single_dataset(self):
+        """Test parsing single dataset."""
+        result = parse_dataset_specs(["bluemarble"])
+        assert result == ["bluemarble"]
+
+    def test_comma_separated(self):
+        """Test parsing comma-separated datasets."""
+        result = parse_dataset_specs(["bluemarble,bluemarble-tb"])
+        assert result == ["bluemarble", "bluemarble-tb"]
+
+    def test_multiple_specs(self):
+        """Test parsing multiple dataset specifications."""
+        result = parse_dataset_specs(["bluemarble", "bluemarble-tb"])
+        assert result == ["bluemarble", "bluemarble-tb"]
+
+    def test_whitespace_handling(self):
+        """Test that whitespace is handled correctly."""
+        result = parse_dataset_specs([" bluemarble , bluemarble-tb "])
+        assert result == ["bluemarble", "bluemarble-tb"]
+
+    def test_deduplication(self):
+        """Test that duplicate datasets are removed."""
+        result = parse_dataset_specs(["bluemarble,bluemarble-tb,bluemarble"])
+        assert result == ["bluemarble", "bluemarble-tb"]
+
+    def test_empty_specs(self):
+        """Test parsing empty list."""
+        result = parse_dataset_specs([])
+        assert result == []
+
+    def test_mixed_specs(self):
+        """Test mixing single and comma-separated specs."""
+        result = parse_dataset_specs(["bluemarble", "bluemarble-tb,black-marble"])
+        assert result == ["bluemarble", "bluemarble-tb", "black-marble"]
