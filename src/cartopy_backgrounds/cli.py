@@ -15,6 +15,7 @@ from .datasets.registry import DatasetRegistry
 from .generator import JSONGenerator
 from .models.common import Month, Resolution
 from .utils.parser import parse_dataset_specs, parse_month_specs, parse_resolution_specs
+from .validator import ImageValidator
 
 app = typer.Typer(
     name="cartopy-bg",
@@ -295,11 +296,108 @@ def verify(
 ) -> None:
     """Verify downloaded images.
 
-    Checks that downloaded images exist and are valid.
+    Checks that downloaded images exist and are valid PNG files.
+
+    Examples:
+
+      # Verify all downloaded datasets
+      cartopy-bg verify
+
+      # Verify specific datasets
+      cartopy-bg verify -d bluemarble -d bluemarble-tb
     """
-    # TODO: Implement validation in Phase 9
-    console.print("[yellow]Verification not yet implemented[/yellow]")
-    console.print("This feature will be added in Phase 9")
+    # Parse dataset specifications
+    if datasets:
+        dataset_names = parse_dataset_specs(datasets)
+    else:
+        # Default to all registered datasets
+        dataset_names = DatasetRegistry.get_names()
+
+    # Check if data directory exists
+    if not data_dir.exists():
+        console.print(f"[red]Error:[/red] Data directory does not exist: {data_dir}")
+        console.print("Run 'cartopy-bg download' first to download images.")
+        raise typer.Exit(1)
+
+    console.print(f"\n[bold]Verifying downloaded images...[/bold]")
+    console.print(f"Data directory: {data_dir}\n")
+
+    # Initialize validator
+    validator = ImageValidator(data_dir)
+
+    # Validate datasets
+    all_results = validator.validate_datasets(dataset_names)
+
+    if not all_results:
+        console.print("[yellow]No datasets found to verify[/yellow]")
+        raise typer.Exit(0)
+
+    # Display results for each dataset
+    total_checked = 0
+    total_valid = 0
+    total_invalid = 0
+    total_missing = 0
+
+    for dataset_name, results in all_results.items():
+        if not results:
+            continue
+
+        console.print(f"[bold cyan]{dataset_name}:[/bold cyan]")
+
+        # Create results table
+        table = Table(show_header=True, header_style="bold")
+        table.add_column("Month", style="cyan")
+        table.add_column("Resolution", style="yellow")
+        table.add_column("Status", style="white")
+        table.add_column("Size", justify="right", style="dim")
+        table.add_column("Error", style="red")
+
+        for result in results:
+            total_checked += 1
+
+            if result.is_ok:
+                status = "[green]✓ Valid[/green]"
+                size = f"{result.file_size // 1024} KB" if result.file_size else ""
+                error = ""
+                total_valid += 1
+            elif result.exists:
+                status = "[red]✗ Invalid[/red]"
+                size = f"{result.file_size // 1024} KB" if result.file_size else ""
+                error = result.error or "Unknown error"
+                total_invalid += 1
+            else:
+                status = "[yellow]⚠ Missing[/yellow]"
+                size = ""
+                error = "File not found"
+                total_missing += 1
+
+            table.add_row(
+                result.month.value,
+                result.resolution.value,
+                status,
+                size,
+                error,
+            )
+
+        console.print(table)
+        console.print()
+
+    # Summary
+    console.print("[bold]Summary:[/bold]")
+    console.print(f"  Total checked: {total_checked}")
+    console.print(f"  [green]Valid: {total_valid}[/green]")
+    if total_missing > 0:
+        console.print(f"  [yellow]Missing: {total_missing}[/yellow]")
+    if total_invalid > 0:
+        console.print(f"  [red]Invalid: {total_invalid}[/red]")
+
+    # Exit with error code if any issues found
+    if total_invalid > 0 or total_missing > 0:
+        console.print("\n[yellow]⚠ Validation completed with issues[/yellow]")
+        raise typer.Exit(1)
+    else:
+        console.print("\n[green bold]✓ All images verified successfully![/green bold]")
+        raise typer.Exit(0)
 
 
 if __name__ == "__main__":
