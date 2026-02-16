@@ -17,20 +17,20 @@ class BlueMarbleTBDataset(Dataset):
     """
 
     # Dataset IDs for Blue Marble + Topography/Bathymetry
-    # Note: These need to be confirmed/scraped from the NASA website
+    # Verified by scraping from NASA NEO website
     DATASET_IDS = {
-        Month.JANUARY: "526314",
-        Month.FEBRUARY: "526315",
-        Month.MARCH: "526316",
-        Month.APRIL: "526317",
-        Month.MAY: "526318",
-        Month.JUNE: "526319",
-        Month.JULY: "526320",
-        Month.AUGUST: "526321",
-        Month.SEPTEMBER: "526322",
-        Month.OCTOBER: "526323",
-        Month.NOVEMBER: "526324",
-        Month.DECEMBER: "526325",
+        Month.JANUARY: "526306",
+        Month.FEBRUARY: "526307",
+        Month.MARCH: "526309",
+        Month.APRIL: "526298",
+        Month.MAY: "526305",
+        Month.JUNE: "526294",
+        Month.JULY: "526296",
+        Month.AUGUST: "526312",
+        Month.SEPTEMBER: "526304",
+        Month.OCTOBER: "526295",
+        Month.NOVEMBER: "526291",
+        Month.DECEMBER: "526311",
     }
 
     @property
