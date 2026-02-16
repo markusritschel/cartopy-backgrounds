@@ -2,21 +2,11 @@
 
 This directory contains examples demonstrating how to use the downloaded NASA BlueMarble imagery with Cartopy.
 
-## Prerequisites
-
-Install Cartopy and Matplotlib (not included in cartopy-backgrounds by default):
-
-```bash
-pip install cartopy matplotlib
-```
-
-Or with conda:
-
-```bash
-conda install -c conda-forge cartopy matplotlib
-```
-
 ## Quick Start
+
+### Option 1: Jupyter Notebook (Recommended)
+
+Interactive notebook with 5+ examples:
 
 1. **Download BlueMarble images:**
    ```bash
@@ -28,17 +18,71 @@ conda install -c conda-forge cartopy matplotlib
    cartopy-bg generate
    ```
 
-3. **Run the example script:**
+3. **Run the notebook with uv (no installation needed):**
    ```bash
-   python examples/cartopy_usage_example.py
+   uv run --with jupyter --with cartopy --with matplotlib \
+     jupyter notebook examples/cartopy_usage_examples.ipynb
    ```
 
-This will generate several example maps in `examples/output/`:
+   Or with JupyterLab:
+   ```bash
+   uv run --with jupyterlab --with cartopy --with matplotlib jupyter lab
+   ```
+
+The notebook includes:
 - Basic global map with BlueMarble background
-- Regional map focused on Europe
+- Regional maps (Europe, North America)
 - Different map projections comparison
-- Seasonal changes across months
+- Seasonal changes visualization
 - Resolution comparison (low/mid/high)
+- **Interactive widget** to choose month and resolution
+
+### Option 2: Python Script
+
+Run the standalone Python script to generate example images:
+
+```bash
+# Using uv (no installation needed)
+uv run --with cartopy --with matplotlib \
+  python examples/cartopy_usage_example.py
+
+# Or if you have cartopy/matplotlib installed
+python examples/cartopy_usage_example.py
+```
+
+This generates example maps in `examples/output/`.
+
+## Installation Options
+
+### Quick Run (No Installation)
+
+Use `uv run --with` to run code without installing packages:
+
+```bash
+# Run a Python script with dependencies
+uv run --with cartopy --with matplotlib python your_script.py
+
+# Run a Jupyter notebook
+uv run --with jupyter --with cartopy --with matplotlib jupyter notebook
+
+# Run with ipywidgets for interactive notebooks
+uv run --with jupyter --with cartopy --with matplotlib --with ipywidgets jupyter notebook
+```
+
+### Permanent Installation
+
+If you prefer to install Cartopy and Matplotlib globally:
+
+```bash
+# With pip
+pip install cartopy matplotlib
+
+# With uv
+uv pip install cartopy matplotlib
+
+# With conda (recommended for cartopy due to complex dependencies)
+conda install -c conda-forge cartopy matplotlib
+```
 
 ## Example Usage in Your Code
 
