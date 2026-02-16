@@ -14,12 +14,8 @@ install-dev:
     uv sync --group dev
 
 # Run all tests
-test:
-    uv run pytest
-
-# Run tests with verbose output
-test-verbose:
-    uv run pytest -v
+test *ARGS:
+    uv run pytest {{ARGS}}
 
 # Run tests with coverage report
 test-coverage:
@@ -31,8 +27,8 @@ test-coverage-html:
     @echo "Coverage report generated in htmlcov/index.html"
 
 # Lint code with ruff
-lint:
-    uv run ruff check src/
+lint *ARGS:
+    uv run ruff check src/ {{ARGS}}
 
 # Format code with ruff
 format:
@@ -101,10 +97,6 @@ clean: clean-data clean-build
 help:
     uv run cartopy-bg --help
 
-# Show download command help
-help-download:
-    uv run cartopy-bg download --help
-
 # Run a quick validation workflow
 validate: install-dev test download-test
     @echo "✓ Validation complete!"
@@ -134,21 +126,6 @@ status:
     @echo "Test results:"
     @uv run pytest --quiet --tb=no 2>/dev/null && echo "  ✓ All tests passing" || echo "  ✗ Some tests failing"
 
-# Create a new feature branch
-new-branch name:
-    git checkout -b feat/{{name}}
-    @echo "✓ Created and switched to branch: feat/{{name}}"
-
-# Commit changes with conventional commit message
-commit type message:
-    git add -A
-    git commit -m "{{type}}: {{message}}"
-    @echo "✓ Committed: {{type}}: {{message}}"
-
-# Run development server (for future web interface)
-dev:
-    @echo "Development server not yet implemented"
-    @echo "Run CLI commands with: uv run cartopy-bg <command>"
 
 # Install example dependencies
 install-examples:
