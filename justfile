@@ -11,7 +11,7 @@ install:
 
 # Install with dev dependencies
 install-dev:
-    uv sync --extra dev
+    uv sync --group dev
 
 # Run all tests
 test:

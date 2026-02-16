@@ -16,6 +16,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+examples = [
+    "cartopy>=0.22.0",
+    "matplotlib>=3.8.0",
+    "scipy>=1.11.0",
+    "jupyter>=1.0.0",
+    "ipywidgets>=8.1.0",
+]
+
+[dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
@@ -23,13 +32,6 @@ dev = [
     "pytest-httpx>=0.30.0",
     "ruff>=0.2.0",
     "mypy>=1.8.0",
-]
-examples = [
-    "cartopy>=0.22.0",
-    "matplotlib>=3.8.0",
-    "scipy>=1.11.0",
-    "jupyter>=1.0.0",
-    "ipywidgets>=8.1.0",
 ]
 
 [project.scripts]

@@ -219,8 +219,8 @@ cartopy-backgrounds/
 ### Running Tests
 
 ```bash
-# Install dev dependencies
-uv sync --extra dev
+# Install dev dependencies (uses dependency-groups, not extras)
+uv sync --group dev
 
 # Run tests
 uv run pytest
