@@ -4,7 +4,7 @@ A modern CLI tool to download NASA satellite imagery backgrounds for use with [C
 
 ## Features
 
-- 🌍 **Multiple NASA Datasets**: BlueMarble, BlueMarble + Topography/Bathymetry
+- 🌍 **[Multiple NASA Datasets](https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/)**: BlueMarble, BlueMarble + Topography/Bathymetry
 - 🚀 **Fast Async Downloads**: Concurrent downloads with retry logic
 - 🎨 **Beautiful CLI**: Rich progress bars and colored output
 - 📦 **Flexible Resolution Selection**: Choose low, mid, high resolutions
